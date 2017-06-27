@@ -53,7 +53,10 @@ public class Window implements Runnable{
 		
 		
 		mainFrame.setVisible(true);
-		run();
+		while (true){
+		try {run();} 
+		catch (ArrayIndexOutOfBoundsException e){ prepareOneScreenLevel(); repaint();}
+		}
 	}
 	private void prepareOneScreenLevel() throws IOException {
 		tiles = new Tile[32][24];
@@ -97,10 +100,24 @@ public class Window implements Runnable{
 		repaint();
 	}
 	
+	//TODO fix the nulls to not be cheating
+	public boolean tileRight(double xpix, double ypix){
+		int xin = (int) Math.floor((xpix)/32)+1, yin = (int) Math.round(ypix/32);
+		return tiles[xin][yin] != null;
+	}
+	public boolean tileLeft(double xpix, double ypix){
+		int xin = (int) Math.floor((xpix)/32), yin = (int) Math.round(ypix/32);
+		return tiles[xin][yin] != null;
+	}
 	public boolean tileBelow(double xpix, double ypix){
 		//assume player is 32*32
-		int xin1 = (int) Math.floor(xpix/32), xin2 = (int) Math.ceil(xpix/32), yin = (int) Math.floor(ypix/32);
+		int xin1 = (int) Math.floor((xpix+2)/32), xin2 = (int) Math.ceil((xpix-2)/32), yin = (int) Math.floor(ypix/32);
 		return tiles[xin1][yin+1] != null || tiles[xin2][yin+1] != null;
+	}
+	public boolean tileAbove(double xpix, double ypix){
+		//assume player is 32*32
+		int xin1 = (int) Math.floor((xpix+2)/32), xin2 = (int) Math.ceil((xpix-2)/32), yin = (int) Math.floor(ypix/32);
+		return tiles[xin1][yin] != null || tiles[xin2][yin] != null;
 	}
 	
 	//units for movement are in pixels/frame
@@ -123,7 +140,7 @@ public class Window implements Runnable{
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		} 
 	}
 	
 }

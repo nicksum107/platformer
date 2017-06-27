@@ -24,46 +24,42 @@ public class Player {
 		g.drawImage(sprite, (int)x, (int)y, null);
 	}
 	
+	//acceleration constants
 	final double SLOW_DOWN_SPD = 0.3;
 	final double SPD_UP_SPD = 0.2;
 	final double GRAVITY = 0.1; //pixels / frame ^ 2 
 	public void resolveMovement(){ //resolve movement
-		 //update x and y position
-		 x += xvel; //time passed is always 1 frame so let's just make it based on frame
-		 y += yvel;
-		 
-		 
-		 //TODO: stop when hit a wall 
-		 
-		 //horizontal mvt
-		 if ((!keyA && !keyD) || (keyA && keyD)) { //slow down
-			 if 	  (xvel>SLOW_DOWN_SPD)xvel-= SLOW_DOWN_SPD;
-			 else if ((xvel <SLOW_DOWN_SPD&& xvel>=0)|| (xvel >SLOW_DOWN_SPD&& xvel<0)) xvel = 0;
-			 else 	                      xvel +=SLOW_DOWN_SPD;
-		 } else{ //speed up until hits max speed which is  3 pixels/frame
-			 if (keyA && xvel >-5) xvel -= SPD_UP_SPD; //derivatives
-			 if (keyD && xvel < 5) xvel += SPD_UP_SPD;
-		 }
-		 
-		 //when they're in the air, push down
-		 if (!tileBelow()){
-			 yvel += GRAVITY;
-			
-		 } else if (keyW){
-			 yvel = -5; //todo the longer you press jump the higher you go
-		 } else {
-			 yvel = 0;
-		 }
-		 
-		 
-		 
-		 //implement gravity except when touching a ground
-		 //give player upwards velocity when they hit jump
-		 
-	}
-	
-	public boolean tileBelow(){
-		return owner.tileBelow(x, y);
+		//update x and y position
+		x += xvel; //time passed is always 1 frame so let's just make it based on frame
+		y += yvel;
+		
+		
+		//horizontal mvt
+		if ((!keyA && !keyD) || (keyA && keyD)) { //slow down
+			if 	  (xvel>SLOW_DOWN_SPD)xvel-= SLOW_DOWN_SPD;
+			else if ((xvel <SLOW_DOWN_SPD&& xvel>=0)|| (xvel >SLOW_DOWN_SPD&& xvel<0)) xvel = 0;
+			else 	                      xvel +=SLOW_DOWN_SPD;
+		} else { //speed up until hits max speed which is  3 pixels/frame
+			if (keyA && xvel >-5) xvel -= SPD_UP_SPD; //derivatives
+			if (keyD && xvel < 5) xvel += SPD_UP_SPD;
+		}
+		if (xvel<0 && owner.tileLeft(x, y)){ x -= xvel; xvel = 0;}
+		if (xvel>0 && owner.tileRight(x,y)){ x -= xvel; xvel = 0;}
+		
+		//hitting a ceiling
+		if (owner.tileAbove(x, y)){
+			if (yvel >= GRAVITY) yvel+= GRAVITY; 
+			else yvel = GRAVITY;
+		}
+		
+		//when they're in the air, push down
+		if (!owner.tileBelow(x,y)){
+			yvel += GRAVITY;
+		} else if (keyW){
+			yvel = -5; //TODO the longer you press jump the higher you go or something?
+		} else {
+			yvel = 0;
+		}
 	}
 	
 	public void resetListeners() {
